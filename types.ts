@@ -1,19 +1,11 @@
-import React from 'react';
+import { LucideIcon } from 'lucide-react';
 
-export enum Language {
-  EN = 'EN',
-  PT = 'PT'
-}
+export type Language = 'en' | 'pt' | 'es';
 
-export interface ContentSection {
-  title: string;
-  description?: string;
-}
-
-export interface Pillar {
+export interface Principle {
   title: string;
   description: string;
-  icon: string;
+  iconName: string;
 }
 
 export interface Reference {
@@ -23,25 +15,22 @@ export interface Reference {
 
 export interface CurriculumArea {
   title: string;
-  icon: React.ElementType; // Lucide Icon
+  points: string[];
+  iconName: string;
   color: string;
+}
+
+export interface ProjectSection {
+  title: string;
   points: string[];
 }
 
-export interface ProjectInfo {
+export interface EvaluationSection {
+  title: string;
   points: string[];
 }
 
-export interface ContentData {
-  nav: {
-    home: string;
-    principles: string;
-    references: string;
-    curriculum: string;
-    projects: string;
-    assessment: string;
-    contact: string;
-  };
+export interface Content {
   hero: {
     title: string;
     subtitle: string;
@@ -49,7 +38,7 @@ export interface ContentData {
   principles: {
     sectionTitle: string;
     intro: string;
-    items: Pillar[];
+    items: Principle[];
   };
   references: {
     sectionTitle: string;
@@ -58,17 +47,18 @@ export interface ContentData {
   curriculum: {
     sectionTitle: string;
     intro: string;
-    items: CurriculumArea[];
+    areas: CurriculumArea[];
   };
   projects: {
     sectionTitle: string;
-    items: string[];
+    items: ProjectSection;
   };
-  assessment: {
+  evaluation: {
     sectionTitle: string;
-    items: string[];
+    items: EvaluationSection;
   };
   footer: {
-    text: string;
+    contact: string;
+    rights: string;
   };
 }

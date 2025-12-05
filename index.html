@@ -1,94 +1,364 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bandeja de Café da Manhã</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f3f3f3;
-            color: #333;
-        }
+import React, { useState, useEffect } from "react";
 
-        header {
-            background: #ffb6c1;
-            padding: 20px;
-            text-align: center;
-            font-size: 22px;
-            font-weight: bold;
-            color: #fff;
-        }
+// Single-file React component for a responsive primary school website
+// - Uses Tailwind CSS classes (assumes Tailwind is available in the project)
+// - Default language: English (en). Other languages: Portuguese (pt-BR), Spanish (es)
+// - Carousel with 4 images, accessible controls
+// - Sections: Principles, Pedagogical References, Areas of Human Behavior, Project Organization, Evaluation
+// - Playful, pedagogical styles and card layouts
 
-        .container {
-            max-width: 700px;
-            margin: 30px auto;
-            background: #ffffff;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+const translations = {
+  "en": {
+    siteTitle: "Starlight Primary School",
+    siteSubtitle: "A joyful place to learn, play and grow",
+    navHome: "Home",
+    navPrinciples: "Guiding Principles",
+    navReferences: "Pedagogical References",
+    navAreas: "Learning Areas",
+    navProjects: "Projects",
+    navAssessment: "Assessment",
+    switchLang: "Language",
+    // Carousel captions (short)
+    carousel: [
+      { title: "Welcome to Our School", caption: "Playful and meaningful learning" },
+      { title: "Nature & Discovery", caption: "Learning through exploration" },
+      { title: "Arts & Movement", caption: "Creativity at the center" },
+      { title: "Caring Community", caption: "Values and relationships" }
+    ],
+    // Principles
+    principlesTitle: "Guiding principles",
+    principlesText: `The curricular proposal is built on four essential pillars:
+• Connection with the child's world\nThe learning begins from active listening to children, their experiences, interests and social context, promoting real links between content and their lives.\n• Christian values\nChristian values — such as love, respect, empathy, cooperation, generosity, forgiveness and justice — are lived daily as an ethical foundation for coexistence, without religious imposition.\n• Autonomy of thought and creation\nChildren are seen as thinking, curious and creative subjects. They are encouraged to make decisions, experiment, solve problems and express their ideas freely and respectfully.\n• Meaningful experiences\nLearning happens concretely and contextually, through play, nature, art, the body, relationships and sensory and affective experiences.`,
+    // References
+    referencesTitle: "Pedagogical references",
+    references: `• Reggio Emilia\nInfluences the value of active listening, the environment as educator, documentation of the process and the construction of projects from children's interests.\n• Emmi Pikler\nFoundation on respect for the child's time, freedom of movement, affective interactions and care as part of development.`,
+    // Areas
+    areasTitle: "Areas of Human Behavior as Curriculum Structure",
+    areasText: `Learning will be promoted through projects that organically articulate the main areas of human behavior, providing global development:`,
+    areasList: {
+      cognitiveTitle: "Cognitive Area",
+      cognitive: `• Stimulates reasoning, language, problem solving and knowledge building (mathematics, nature, science, etc.).\n• Activities like experiments, investigations, exploration of objects and phenomena, storytelling, logic and language games.`,
+      socioTitle: "Socio-emotional Area",
+      socio: `• Development of empathy, self-regulation, respect for others and identity construction.\n• Experiences involving care of others, cooperation, active listening, expression of feelings, conflict resolution.`,
+      creativeTitle: "Expressive & Creative Area",
+      creative: `• Stimulates artistic, bodily, musical and symbolic expression.\n• Proposals with diverse materials, visual arts, music, dance, dramatization and free symbolic language.`,
+      motorTitle: "Motor Area",
+      motor: `• Development of gross and fine motor coordination, balance, rhythm, body awareness and physical autonomy.\n• Activities with free movement, circuits, object manipulation, outdoor play and self-care practices.`,
+      ethicTitle: "Ethical-Spiritual Area",
+      ethic: `• Formation of values based on the teachings of Jesus, adapted to children's language and with a universal focus.\n• Stories, circle times, symbolic celebrations, caring actions, listening and dialogue about goodness, love and respect.`
+    },
+    // Projects
+    projectsTitle: "Project-based Organization",
+    projectsText: `• Projects are built from children's real interests, everyday situations or topics proposed by the school community.\n• Each project is based on a guiding question and evolves with investigations, records, hypothesis creation and productions.\n• Project activities integrate all the areas above and are documented to reflect the learning process.`,
+    // Assessment
+    assessmentTitle: "Assessment",
+    assessmentText: `• Assessment is qualitative, continuous and based on careful observation, sensitive listening and pedagogical documentation.\n• Focuses on development process and individual and collective achievements, without comparisons or grades.`
+  },
+  "pt-BR": {
+    siteTitle: "Escola Primária Estrelar",
+    siteSubtitle: "Um lugar alegre para aprender, brincar e crescer",
+    navHome: "Início",
+    navPrinciples: "Princípios Norteadores",
+    navReferences: "Referenciais Pedagógicos",
+    navAreas: "Áreas do Comportamento",
+    navProjects: "Organização por Projetos",
+    navAssessment: "Avaliação",
+    switchLang: "Idioma",
+    carousel: [
+      { title: "Bem-vindo à nossa escola", caption: "Aprendizagem lúdica e significativa" },
+      { title: "Natureza e Descoberta", caption: "Aprender explorando" },
+      { title: "Arte e Movimento", caption: "Criatividade no centro" },
+      { title: "Comunidade que cuida", caption: "Valores e relações" }
+    ],
+    principlesTitle: "Princípios Norteadores",
+    principlesText: `A proposta curricular está fundamentada em quatro pilares essenciais:\n• Conexão com a realidade de mundo da criança\nA aprendizagem parte da escuta ativa das crianças, suas experiências, interesses e contexto social, promovendo vínculos reais entre o conteúdo e suas vidas.\n• Valores cristãos\nOs valores do cristianismo — como amor, respeito, empatia, cooperação, generosidade, perdão e justiça — são vividos no dia a dia como fundamento ético da convivência, sem imposição religiosa.\n• Autonomia de pensamento e criação\nAs crianças são vistas como sujeitos pensantes, curiosos e criativos. São incentivadas a tomar decisões, experimentar, resolver problemas e expressar suas ideias de forma livre e respeitosa.\n• Vivências significativas\nA aprendizagem acontece de forma concreta e contextualizada, por meio do brincar, da natureza, da arte, do corpo, das relações e das experiências sensoriais e afetivas.`,
+    referencesTitle: "Referenciais Pedagógicos",
+    references: `• Reggio Emilia\nInfluência na valorização da escuta ativa, no ambiente como educador, na documentação do processo e na construção de projetos a partir dos interesses das crianças.\n• Emmi Pikler\nFundamentação no respeito ao tempo da criança, na liberdade de movimento, nas interações afetivas e no cuidado como parte integral do desenvolvimento.`,
+    areasTitle: "Áreas do Comportamento Humano como Estrutura Curricular",
+    areasText: `A aprendizagem será promovida por meio de projetos que articulem de forma orgânica as principais áreas do comportamento humano, proporcionando um desenvolvimento global:`,
+    areasList: {
+      cognitiveTitle: "🧠 Área Cognitiva",
+      cognitive: `• Estímulo ao raciocínio, à linguagem, à solução de problemas e à construção de conhecimentos diversos (matemática, natureza, ciência, etc.).\n• Atividades como experimentações, investigação, exploração de objetos e fenômenos, narração de histórias, jogos de lógica e linguagem.`,
+      socioTitle: "🤝 Área Socioemocional",
+      socio: `• Desenvolvimento da empatia, da autorregulação, do respeito ao outro e da construção de identidade.\n• Vivências que envolvem o cuidado com o outro, cooperação, escuta ativa, expressão de sentimentos, resolução de conflitos.`,
+      creativeTitle: "🎨 Área Expressiva e Criativa",
+      creative: `• Estímulo à expressão artística, corporal, musical e simbólica.\n• Propostas com materiais diversos, artes visuais, música, dança, dramatização e linguagem simbólica livre.`,
+      motorTitle: "🏃 Área Motora",
+      motor: `• Desenvolvimento da coordenação motora ampla e fina, equilíbrio, ritmo, consciência corporal e autonomia física.\n• Atividades com movimento livre, circuitos, manipulação de objetos, brincadeiras ao ar livre e práticas de autocuidado.`,
+      ethicTitle: "🕊️ Área Ético-Espiritual",
+      ethic: `• Formação de valores a partir da vivência dos ensinamentos de Jesus, adaptados à linguagem infantil e com enfoque universal.\n• Histórias, rodas de conversa, celebrações simbólicas, ações de cuidado, escuta e diálogo sobre o bem, o amor e o respeito.`
+    },
+    projectsTitle: "Organização por Projetos",
+    projectsText: `• Os projetos são construídos a partir de interesses reais das crianças, situações do cotidiano ou temas propostos pela comunidade escolar.\n• Cada projeto tem como base uma pergunta norteadora e evolui com investigações, registros, criação de hipóteses e produções.\n• As atividades dos projetos integram todas as áreas acima e são documentadas para refletir o processo de aprendizagem.`,
+    assessmentTitle: "Avaliação",
+    assessmentText: `• A avaliação é qualitativa, contínua e baseada na observação atenta, na escuta sensível e na documentação pedagógica.\n• Foca-se no processo de desenvolvimento e nas conquistas individuais e coletivas, sem comparações ou notas.`
+  },
+  "es": {
+    siteTitle: "Escuela Primaria Estelar",
+    siteSubtitle: "Un lugar alegre para aprender, jugar y crecer",
+    navHome: "Inicio",
+    navPrinciples: "Principios Rectores",
+    navReferences: "Referencias Pedagógicas",
+    navAreas: "Áreas del Comportamiento",
+    navProjects: "Organización por Proyectos",
+    navAssessment: "Evaluación",
+    switchLang: "Idioma",
+    carousel: [
+      { title: "Bienvenidos a nuestra escuela", caption: "Aprendizaje lúdico y significativo" },
+      { title: "Naturaleza y Descubrimiento", caption: "Aprender explorando" },
+      { title: "Arte y Movimiento", caption: "La creatividad en el centro" },
+      { title: "Comunidad que cuida", caption: "Valores y relaciones" }
+    ],
+    principlesTitle: "Principios Rectores",
+    principlesText: `La propuesta curricular está fundamentada en cuatro pilares esenciales:\n• Conexión con la realidad del mundo del niño\nEl aprendizaje parte de la escucha activa de los niños, sus experiencias, intereses y contexto social, promoviendo vínculos reales entre el contenido y sus vidas.\n• Valores cristianos\nLos valores del cristianismo —como amor, respeto, empatía, cooperación, generosidad, perdón y justicia— se viven en el día a día como fundamento ético de la convivencia, sin imposición religiosa.\n• Autonomía de pensamiento y creación\nLos niños son vistos como sujetos pensantes, curiosos y creativos. Se les anima a tomar decisiones, experimentar, resolver problemas y expresar sus ideas de forma libre y respetuosa.\n• Vivencias significativas\nEl aprendizaje ocurre de forma concreta y contextualizada, a través del juego, la naturaleza, el arte, el cuerpo, las relaciones y las experiencias sensoriales y afectivas.`,
+    referencesTitle: "Referencias Pedagógicas",
+    references: `• Reggio Emilia\nInfluencia en la valoración de la escucha activa, el ambiente como educador, la documentación del proceso y la construcción de proyectos a partir de los intereses de los niños.\n• Emmi Pikler\nFundamentación en el respeto al tiempo del niño, la libertad de movimiento, las interacciones afectivas y el cuidado como parte integral del desarrollo.`,
+    areasTitle: "Áreas del Comportamiento Humano como Estructura Curricular",
+    areasText: `El aprendizaje será promovido mediante proyectos que articulen de forma orgánica las principales áreas del comportamiento humano, proporcionando un desarrollo global:`,
+    areasList: {
+      cognitiveTitle: "🧠 Área Cognitiva",
+      cognitive: `• Estímulo al razonamiento, al lenguaje, a la resolución de problemas y a la construcción de conocimientos diversos (matemáticas, naturaleza, ciencia, etc.).\n• Actividades como experimentaciones, investigación, exploración de objetos y fenómenos, narración de historias, juegos de lógica y lenguaje.`,
+      socioTitle: "🤝 Área Socioemocional",
+      socio: `• Desarrollo de la empatía, la autorregulación, el respeto al otro y la construcción de identidad.\n• Vivencias que implican el cuidado del otro, cooperación, escucha activa, expresión de sentimientos, resolución de conflictos.`,
+      creativeTitle: "🎨 Área Expresiva y Creativa",
+      creative: `• Estímulo a la expresión artística, corporal, musical y simbólica.\n• Propuestas con materiales diversos, artes visuales, música, danza, dramatización y lenguaje simbólico libre.`,
+      motorTitle: "🏃 Área Motora",
+      motor: `• Desarrollo de la coordinación motora amplia y fina, equilibrio, ritmo, conciencia corporal y autonomía física.\n• Actividades con movimiento libre, circuitos, manipulación de objetos, juegos al aire libre y prácticas de autocuidado.`,
+      ethicTitle: "🕊️ Área Ético-Espiritual",
+      ethic: `• Formación de valores a partir de la vivencia de las enseñanzas de Jesús, adaptadas al lenguaje infantil y con enfoque universal.\n• Historias, rondas de conversación, celebraciones simbólicas, acciones de cuidado, escucha y diálogo sobre el bien, el amor y el respeto.`
+    },
+    projectsTitle: "Organización por Proyectos",
+    projectsText: `• Los proyectos se construyen a partir de intereses reales de los niños, situaciones cotidianas o temas propuestos por la comunidad escolar.\n• Cada proyecto tiene como base una pregunta orientadora y evoluciona con investigaciones, registros, creación de hipótesis y producciones.\n• Las actividades de los proyectos integran todas las áreas anteriores y se documentan para reflejar el proceso de aprendizaje.`,
+    assessmentTitle: "Evaluación",
+    assessmentText: `• La evaluación es cualitativa, continua y basada en la observación atenta, la escucha sensible y la documentación pedagógica.\n• Se enfoca en el proceso de desarrollo y en los logros individuales y colectivos, sin comparaciones ni calificaciones.`
+  }
+};
 
-        h2 {
-            margin-top: 0;
-            color: #d46a8e;
-        }
+const images = [
+  // Unsplash images — replace with school-specific photographs if available
+  {
+    src: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1400&q=80",
+    alt: "Children playing outdoors"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=1400&q=80",
+    alt: "Nature exploration with kids"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1512070679279-c0b1f0a3f3f8?auto=format&fit=crop&w=1400&q=80",
+    alt: "Children painting and doing arts"
+  },
+  {
+    src: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1400&q=80",
+    alt: "Group circle time"
+  }
+];
 
-        .item-list {
-            margin-top: 20px;
-            line-height: 1.6;
-        }
+export default function SchoolWebsite() {
+  const [lang, setLang] = useState("en");
+  const t = translations[lang];
 
-        .item-list li {
-            margin-bottom: 8px;
-        }
+  // Carousel state
+  const [index, setIndex] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setIndex((i) => (i + 1) % images.length), 5000);
+    return () => clearInterval(timer);
+  }, []);
 
-        .footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 14px;
-            color: #777;
-        }
+  return (
+    <div className="min-h-screen font-sans text-gray-800 bg-gradient-to-b from-white to-indigo-50">
+      {/* Header */}
+      <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-gray-200">
+        <div className="max-w-6xl mx-auto flex items-center justify-between p-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-indigo-200 flex items-center justify-center text-indigo-800 font-bold">SP</div>
+            <div>
+              <h1 className="text-xl font-extrabold">{t.siteTitle}</h1>
+              <p className="text-sm text-gray-600">{t.siteSubtitle}</p>
+            </div>
+          </div>
+          <nav className="flex items-center gap-4">
+            <a href="#home" className="text-sm hover:underline">{t.navHome}</a>
+            <a href="#principles" className="text-sm hover:underline">{t.navPrinciples}</a>
+            <a href="#references" className="text-sm hover:underline">{t.navReferences}</a>
+            <a href="#areas" className="text-sm hover:underline">{t.navAreas}</a>
+            <a href="#projects" className="text-sm hover:underline">{t.navProjects}</a>
+            <a href="#assessment" className="text-sm hover:underline">{t.navAssessment}</a>
+            <select
+              aria-label={t.switchLang}
+              value={lang}
+              onChange={(e) => setLang(e.target.value)}
+              className="ml-2 rounded-md border px-2 py-1 text-sm"
+            >
+              <option value="en">English</option>
+              <option value="pt-BR">Português (BR)</option>
+              <option value="es">Español</option>
+            </select>
+          </nav>
+        </div>
+      </header>
 
-        .heart {
-            color: #d46a8e;
-        }
-    </style>
-</head>
-<body>
+      <main className="max-w-6xl mx-auto p-4 space-y-12">
+        {/* Carousel Hero */}
+        <section id="home" className="relative overflow-hidden rounded-2xl shadow-lg">
+          <div className="relative h-64 md:h-96">
+            {images.map((img, i) => (
+              <div
+                key={i}
+                className={`absolute inset-0 transition-opacity duration-700 ${i === index ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                aria-hidden={i !== index}
+              >
+                <img src={img.src} alt={img.alt} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                <div className="absolute left-6 bottom-6 md:left-12 md:bottom-12 text-white">
+                  <h2 className="text-2xl md:text-4xl font-bold drop-shadow">{t.carousel[i].title}</h2>
+                  <p className="mt-1 text-sm md:text-lg drop-shadow">{t.carousel[i].caption}</p>
+                </div>
+              </div>
+            ))}
 
-<header>
-    Bandeja de Café da Manhã Especial
-</header>
+            {/* Controls */}
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 flex gap-2">
+              <button
+                aria-label="Previous"
+                onClick={() => setIndex((i) => (i - 1 + images.length) % images.length)}
+                className="bg-white/80 rounded-full p-2 shadow-md"
+              >
+                ◀
+              </button>
+              <button
+                aria-label="Next"
+                onClick={() => setIndex((i) => (i + 1) % images.length)}
+                className="bg-white/80 rounded-full p-2 shadow-md"
+              >
+                ▶
+              </button>
+            </div>
 
-<div class="container">
-    <h2>Mensagem para Ela</h2>
-    <p>
-        Bom dia, meu amor! Preparei esta bandeja com carinho para começar seu dia da melhor forma. 
-        Que você sinta todo o meu amor em cada detalhe. Você merece tudo de mais lindo. ❤️
-    </p>
+            {/* Indicators */}
+            <div className="absolute right-4 bottom-4 flex gap-2">
+              {images.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setIndex(i)}
+                  aria-label={`Go to slide ${i + 1}`}
+                  className={`w-10 h-2 rounded-full ${i === index ? "bg-white" : "bg-white/60"}`}
+                />
+              ))}
+            </div>
 
-    <h2>Itens da Bandeja</h2>
-    <ul class="item-list">
-        <li>🥤 Smoothie proteico de morango</li>
-        <li>🥣 Iogurte com frutas cortadas</li>
-        <li>🥚 Crepioca recheada</li>
-        <li>☕ Café preto fresquinho</li>
-        <li>👗 Roupa de dormir escolhida com carinho</li>
-        <li>🌸 Flores frescas</li>
-    </ul>
+          </div>
+        </section>
 
-    <p>
-        Aproveite cada momento da sua manhã, meu bem.  
-        Te amo <span class="heart">♥</span>
-    </p>
-</div>
+        {/* Principles Section */}
+        <section id="principles" className="grid md:grid-cols-2 gap-6 items-start">
+          <div className="space-y-4">
+            <h3 className="text-2xl font-bold">{t.principlesTitle}</h3>
+            <div className="prose max-w-none whitespace-pre-line bg-white p-6 rounded-xl shadow-sm">{t.principlesText}</div>
+          </div>
+          <div className="grid gap-4">
+            <div className="bg-indigo-50 p-4 rounded-xl shadow-inner">
+              <h4 className="font-semibold">Playful Learning</h4>
+              <p className="text-sm text-gray-700">Spaces and materials encourage exploration, sensory experiences and collaboration.</p>
+            </div>
+            <div className="bg-amber-50 p-4 rounded-xl shadow-inner">
+              <h4 className="font-semibold">Caring Community</h4>
+              <p className="text-sm text-gray-700">We build respectful relationships between children, families and educators.</p>
+            </div>
+            <div className="bg-green-50 p-4 rounded-xl shadow-inner">
+              <h4 className="font-semibold">Documentation</h4>
+              <p className="text-sm text-gray-700">Projects and processes are documented to make learning visible.</p>
+            </div>
+          </div>
+        </section>
 
-<div class="footer">
-    Feito com amor por você.
-</div>
+        {/* References Section */}
+        <section id="references" className="bg-white p-6 rounded-2xl shadow">
+          <h3 className="text-2xl font-bold mb-4">{t.referencesTitle}</h3>
+          <div className="grid md:grid-cols-2 gap-6">
+            <article className="p-4 rounded-lg border border-dashed border-gray-200">
+              <h4 className="font-semibold">Reggio Emilia</h4>
+              <p className="text-sm whitespace-pre-line">{t.references.split('\n')[0]}</p>
+            </article>
+            <article className="p-4 rounded-lg border border-dashed border-gray-200">
+              <h4 className="font-semibold">Emmi Pikler</h4>
+              <p className="text-sm whitespace-pre-line">{t.references.split('\n')[1]}</p>
+            </article>
+          </div>
+        </section>
 
-</body>
-</html>
+        {/* Areas Section */}
+        <section id="areas" className="space-y-6">
+          <h3 className="text-2xl font-bold">{t.areasTitle}</h3>
+          <p className="text-gray-700">{t.areasText}</p>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="p-4 rounded-xl bg-white shadow">
+              <h4 className="font-bold">{t.areasList.cognitiveTitle}</h4>
+              <p className="text-sm whitespace-pre-line">{t.areasList.cognitive}</p>
+            </div>
+            <div className="p-4 rounded-xl bg-white shadow">
+              <h4 className="font-bold">{t.areasList.socioTitle}</h4>
+              <p className="text-sm whitespace-pre-line">{t.areasList.socio}</p>
+            </div>
+            <div className="p-4 rounded-xl bg-white shadow">
+              <h4 className="font-bold">{t.areasList.creativeTitle}</h4>
+              <p className="text-sm whitespace-pre-line">{t.areasList.creative}</p>
+            </div>
+            <div className="p-4 rounded-xl bg-white shadow">
+              <h4 className="font-bold">{t.areasList.motorTitle}</h4>
+              <p className="text-sm whitespace-pre-line">{t.areasList.motor}</p>
+            </div>
+            <div className="md:col-span-2 p-4 rounded-xl bg-white shadow">
+              <h4 className="font-bold">{t.areasList.ethicTitle}</h4>
+              <p className="text-sm whitespace-pre-line">{t.areasList.ethic}</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Projects Section */}
+        <section id="projects" className="bg-gradient-to-r from-amber-50 to-white p-6 rounded-2xl shadow-inner">
+          <h3 className="text-2xl font-bold">{t.projectsTitle}</h3>
+          <div className="mt-3 prose max-w-none whitespace-pre-line">{t.projectsText}</div>
+
+          <div className="mt-6 grid md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-xl bg-white shadow hover:scale-105 transition-transform">
+              <h4 className="font-semibold">From a Question</h4>
+              <p className="text-sm">Each project begins with a guiding question and grows through child-led investigation.</p>
+            </div>
+            <div className="p-4 rounded-xl bg-white shadow hover:scale-105 transition-transform">
+              <h4 className="font-semibold">Interdisciplinary</h4>
+              <p className="text-sm">Activities articulate multiple areas of development and learning.</p>
+            </div>
+            <div className="p-4 rounded-xl bg-white shadow hover:scale-105 transition-transform">
+              <h4 className="font-semibold">Documentation & Sharing</h4>
+              <p className="text-sm">Work is documented and shared with families to value the learning journey.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Assessment Section */}
+        <section id="assessment" className="p-6 rounded-2xl bg-white shadow">
+          <h3 className="text-2xl font-bold">{t.assessmentTitle}</h3>
+          <div className="mt-3 prose max-w-none whitespace-pre-line">{t.assessmentText}</div>
+        </section>
+
+      </main>
+
+      <footer className="mt-12 bg-indigo-900 text-white py-6">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div>
+            <strong>{t.siteTitle}</strong>
+            <p className="text-sm">{t.siteSubtitle}</p>
+          </div>
+          <div className="text-sm opacity-90">© {new Date().getFullYear()} {t.siteTitle}. All rights reserved.</div>
+        </div>
+      </footer>
+
+      {/* Small floating help button */}
+      <div className="fixed right-6 bottom-6">
+        <a href="#home" className="inline-flex items-center gap-2 bg-white/90 px-4 py-2 rounded-full shadow">🏫 <span className="text-sm">{t.navHome}</span></a>
+      </div>
+    </div>
+  );
+}
